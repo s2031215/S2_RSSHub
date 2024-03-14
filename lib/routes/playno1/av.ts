@@ -1,13 +1,38 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
-const { cookieJar, processArticle } = require('./utils');
+import { cookieJar, processArticle } from './utils';
 const baseUrl = 'http://www.playno1.com';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/av/:catid?',
+    categories: ['bbs'],
+    example: '/playno1/av',
+    parameters: { catid: '分类，见下表，默认为全部文章' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'AV',
+    maintainers: ['TonyRL'],
+    handler,
+    description: `:::warning
+目前观测到该博客可能禁止日本 IP 访问。建议部署在日本区以外的服务器上。
+:::
+
+  | 全部文章 | AV 新聞 | AV 導覽 |
+  | -------- | ------- | ------- |
+  | 78       | 3       | 5       |`,
+};
+
+async function handler(ctx) {
     const { catid = '78' } = ctx.req.param();
     const url = `${baseUrl}/portal.php?mod=list&catid=${catid}`;
     const response = await got(url, {
@@ -34,10 +59,10 @@ export default async (ctx) => {
 
     items = await processArticle(items, cache);
 
-    ctx.set('data', {
+    return {
         title: $('head title').text(),
         link: url,
         item: items,
         language: 'zh-TW',
-    });
-};
+    };
+}

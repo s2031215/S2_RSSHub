@@ -1,11 +1,12 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
-const md = require('markdown-it')({
+import MarkdownIt from 'markdown-it';
+const md = MarkdownIt({
     html: true,
 });
 import { load } from 'cheerio';
@@ -14,7 +15,14 @@ art.defaults.imports.render = function (string) {
     return md.render(string);
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/month', '/volume'],
+    name: 'Unknown',
+    maintainers: ['moke8', 'nczitzk'],
+    handler,
+};
+
+async function handler() {
     const rootUrl = 'https://hellogithub.com';
     const apiUrl = 'https://api.hellogithub.com/v1/periodical/';
 
@@ -46,9 +54,9 @@ export default async (ctx) => {
         },
     ];
 
-    ctx.set('data', {
+    return {
         title: 'HelloGithub - 月刊',
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

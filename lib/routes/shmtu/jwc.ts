@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -23,7 +23,31 @@ const ProcessFeed = (list, caches) =>
         )
     );
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/jwc/:type',
+    categories: ['university'],
+    example: '/shmtu/jwc/jwgg',
+    parameters: { type: '类型名称' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['jwc.shmtu.edu.cn/:type'],
+    },
+    name: '教务信息',
+    maintainers: ['imbytecat', 'simonsmh'],
+    handler,
+    description: `| 教务公告 | 教务新闻 |
+| -------- | -------- |
+| jwgg     | jwxw     |`,
+};
+
+async function handler(ctx) {
     const type = ctx.req.param('type');
     const info = type === 'jwgg' ? '教务公告' : '教务新闻';
 
@@ -50,10 +74,10 @@ export default async (ctx) => {
 
     const result = await ProcessFeed(list, cache);
 
-    ctx.set('data', {
+    return {
         title: `上海海事大学 ${info}`,
         link: `${host}/${type}`,
         description: '上海海事大学 教务信息',
         item: result,
-    });
-};
+    };
+}

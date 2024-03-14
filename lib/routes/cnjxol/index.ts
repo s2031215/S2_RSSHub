@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -14,7 +14,14 @@ const categories = {
     nhwb: '南湖晚报',
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:category?/:id?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const category = ctx.req.param('category') ?? 'jxrb';
     const id = ctx.req.param('id');
     if (!Object.keys(categories).includes(category)) {
@@ -94,9 +101,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `${categories[category]}${id ? ` - ${$('#layout').text()}` : ''}`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

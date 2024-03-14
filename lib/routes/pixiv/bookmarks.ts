@@ -1,13 +1,34 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
-const { getToken } = require('./token');
-const getBookmarks = require('./api/get-bookmarks');
-const getUserDetail = require('./api/get-user-detail');
+import { getToken } from './token';
+import getBookmarks from './api/get-bookmarks';
+import getUserDetail from './api/get-user-detail';
 import { config } from '@/config';
-const pixivUtils = require('./utils');
+import pixivUtils from './utils';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/bookmarks/:id',
+    categories: ['social-media'],
+    example: '/pixiv/user/bookmarks/15288095',
+    parameters: { id: "user id, available in user's homepage URL" },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['www.pixiv.net/users/:id/bookmarks/artworks'],
+    },
+    name: 'User Bookmark',
+    maintainers: ['EYHN'],
+    handler,
+};
+
+async function handler(ctx) {
     if (!config.pixiv || !config.pixiv.refreshToken) {
         throw new Error('pixiv RSS is disabled due to the lack of <a href="https://docs.rsshub.app/install/#pei-zhi-bu-fen-rss-mo-kuai-pei-zhi">relevant config</a>');
     }
@@ -24,7 +45,7 @@ export default async (ctx) => {
     const illusts = bookmarksResponse.data.illusts;
     const username = userDetailResponse.data.user.name;
 
-    ctx.set('data', {
+    return {
         title: `${username} 的收藏`,
         link: `https://www.pixiv.net/users/${id}/bookmarks/artworks`,
         description: `${username} 的 pixiv 最新收藏`,
@@ -38,5 +59,5 @@ export default async (ctx) => {
                 link: `https://www.pixiv.net/artworks/${illust.id}`,
             };
         }),
-    });
-};
+    };
+}

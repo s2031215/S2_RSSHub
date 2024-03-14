@@ -1,9 +1,9 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getSubPath } from '@/utils/common-utils';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
-const iconv = require('iconv-lite');
+import iconv from 'iconv-lite';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import { config } from '@/config';
@@ -25,7 +25,14 @@ const allowHost = new Set([
     'www.mayiwxw.com',
 ]);
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '*',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const rootUrl = getSubPath(ctx).split('/').slice(1, 4).join('/');
     const currentUrl = getSubPath(ctx).slice(1);
     if (!config.feature.allow_user_supply_unsafe_domain && !allowHost.has(new URL(rootUrl).hostname)) {
@@ -94,9 +101,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `${$('meta[property="og:title"]').attr('content')} - 笔趣阁`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

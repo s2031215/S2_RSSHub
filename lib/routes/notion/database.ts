@@ -1,18 +1,57 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
-const { Client, isNotionClientError, APIErrorCode } = require('@notionhq/client');
+import { Client, isNotionClientError, APIErrorCode } from '@notionhq/client';
 import logger from '@/utils/logger';
 import { config } from '@/config';
 import { parseDate } from '@/utils/parse-date';
 import got from '@/utils/got';
-const { NotionToMarkdown } = require('notion-to-md');
+import { NotionToMarkdown } from 'notion-to-md';
 import { load } from 'cheerio';
-const md = require('markdown-it')({
+import MarkdownIt from 'markdown-it';
+const md = MarkdownIt({
     html: true,
     linkify: true,
 });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/database/:databaseId',
+    categories: ['other'],
+    example: '/notion/database/a7cc133b68454f138011f1530a13531e',
+    parameters: { databaseId: 'Database ID' },
+    features: {
+        requireConfig: [
+            {
+                name: 'NOTION_TOKEN',
+                description: '',
+            },
+        ],
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['notion.so/:id'],
+        target: '/database/:id',
+    },
+    name: 'Database',
+    maintainers: ['curly210102'],
+    handler,
+    description: `There is an optional query parameter called \`properties=\` that can be used to customize field mapping. There are three built-in fields: author, pubTime and link, which can be used to add additional information.
+
+  For example, if you have set up three properties in your database - "Publish Time", "Author", and "Original Article Link" - then execute the following JavaScript code to get the result for the properties parameter.
+
+  \`\`\`js
+  encodeURIComponent(JSON.stringify({"pubTime": "Publish Time", "author": "Author", "link": "Original Article Link"}))
+  \`\`\`
+
+  There is an optional query parameter called \`query=\` that can be used to customize the search rules for your database, such as custom sorting and filtering rules.
+
+  please refer to the [Notion API documentation](https://developers.notion.com/reference/post-database-query) and execute \`encodeURIComponent(JSON.stringify(custom rules))\` to provide the query parameter.`,
+};
+
+async function handler(ctx) {
     if (!config.notion.key) {
         throw new Error('Notion RSS is disabled due to the lack of NOTION_TOKEN(<a href="https://docs.rsshub.app/install/#pei-zhi-bu-fen-rss-mo-kuai-pei-zhi">relevant config</a>)');
     }
@@ -107,14 +146,14 @@ export default async (ctx) => {
             })
         );
 
-        ctx.set('data', {
+        return {
             title: `Notion - ${title}`,
             link,
             description,
             image,
             item: items,
             allowEmpty: true,
-        });
+        };
     } catch (error) {
         logger.error(error);
 
@@ -130,7 +169,7 @@ export default async (ctx) => {
             ctx.throw(error);
         }
     }
-};
+}
 
 function parseCustomQuery(queryString) {
     try {

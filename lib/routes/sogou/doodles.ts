@@ -1,7 +1,25 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/doodles',
+    categories: ['other'],
+    example: '/sogou/doodles',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '特色 LOGO',
+    maintainers: ['xyqfer'],
+    handler,
+};
+
+async function handler() {
     const response = await got({
         method: 'get',
         url: 'http://help.sogou.com/logo/doodle_logo_list.html',
@@ -9,7 +27,7 @@ export default async (ctx) => {
 
     const data = response.data.split(/\r\n/).slice(1);
 
-    ctx.set('data', {
+    return {
         title: '搜狗特色LOGO',
         link: 'http://help.sogou.com/logo/',
         item: data.map((item) => {
@@ -23,5 +41,5 @@ export default async (ctx) => {
                 guid: item[4],
             };
         }),
-    });
-};
+    };
+}

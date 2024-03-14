@@ -1,9 +1,21 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { parseDate } from '@/utils/parse-date';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/',
+    radar: {
+        source: ['playpcesor.com/'],
+        target: '',
+    },
+    name: 'Unknown',
+    maintainers: ['cnkmmk'],
+    handler,
+    url: 'playpcesor.com/',
+};
+
+async function handler() {
     const url = 'https://www.playpcesor.com/';
     const response = await got({ method: 'get', url });
     const $ = load(response.data);
@@ -25,9 +37,9 @@ export default async (ctx) => {
         })
         .get();
 
-    ctx.set('data', {
+    return {
         title: '电脑玩物',
         link: url,
         item: list,
-    });
-};
+    };
+}

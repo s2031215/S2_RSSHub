@@ -1,12 +1,12 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import wait from '@/utils/wait';
 import { load } from 'cheerio';
-const { CookieJar } = require('tough-cookie');
+import { CookieJar } from 'tough-cookie';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
-const asyncPool = require('tiny-async-pool');
+import asyncPool from 'tiny-async-pool';
 
 const site = 'https://oas.gdut.edu.cn/seeyon';
 const typeMap = {
@@ -72,7 +72,19 @@ function getArg(type) {
           ]);
 }
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/oa_news/:type?',
+    radar: {
+        source: ['oas.gdut.edu.cn/seeyon'],
+        target: '/oa_news/',
+    },
+    name: 'Unknown',
+    maintainers: ['Jim Kirisame'],
+    handler,
+    url: 'oas.gdut.edu.cn/seeyon',
+};
+
+async function handler(ctx) {
     const typeParam = ctx.req.param('type') ?? 'notice';
     if (typeMap[typeParam] === undefined) {
         throw new Error('通知类型' + typeParam + '未定义');
@@ -203,10 +215,10 @@ export default async (ctx) => {
         data;
     }
 
-    ctx.set('data', {
+    return {
         title: `广东工业大学新闻通知网 - ` + type.name,
         link: site,
         description: `广东工业大学新闻通知网`,
         item: articles,
-    });
-};
+    };
+}

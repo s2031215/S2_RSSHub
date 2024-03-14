@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -12,7 +12,29 @@ import puppeteer from '@/utils/puppeteer';
 
 const baseUrl = 'https://www.tiktok.com';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/:user/:iframe?',
+    categories: ['social-media'],
+    example: '/tiktok/user/@linustech/true',
+    parameters: { user: 'User ID, including @', iframe: 'Use the official iframe to embed the video, which allows you to view the video if the default option does not work. Default to `false`' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: true,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['tiktok.com/:user'],
+        target: '/user/:user',
+    },
+    name: 'User',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const { user, iframe } = ctx.req.param();
     const useIframe = queryToBoolean(iframe);
 
@@ -55,12 +77,12 @@ export default async (ctx) => {
         category: item.textExtra.map((t) => `#${t.hashtagName}`),
     }));
 
-    ctx.set('data', {
+    return {
         title: data.SharingMetaState.value['og:title'],
         description: data.SharingMetaState.value['og:description'],
         image: data.SharingMetaState.value['og:image'],
         link: `${baseUrl}/${user}`,
         item: items,
         language: data.lang,
-    });
-};
+    };
+}

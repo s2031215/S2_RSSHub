@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -9,7 +9,8 @@ import * as path from 'node:path';
 import { art } from '@/utils/render';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
-const md = require('markdown-it')({
+import MarkdownIt from 'markdown-it';
+const md = MarkdownIt({
     html: true,
     linkify: true,
 });
@@ -52,7 +53,25 @@ const requestImages = (url, tryGet) =>
         return { images, boms };
     });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:sortType?',
+    categories: ['other'],
+    example: '/oshwhub',
+    parameters: { sortType: 'sortType' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'OpenSource Square',
+    maintainers: ['tylinux'],
+    handler,
+};
+
+async function handler(ctx) {
     const baseUrl = 'https://oshwhub.com';
     const sortType = ctx.req.param('sortType') ?? 'updatedTime';
 
@@ -117,10 +136,10 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title,
         link: url,
         description: title,
         item: items,
-    });
-};
+    };
+}

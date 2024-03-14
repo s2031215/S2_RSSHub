@@ -1,13 +1,34 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
-const { getToken } = require('./token');
-const searchPopularIllust = require('./api/search-popular-illust');
-const searchIllust = require('./api/search-illust');
+import { getToken } from './token';
+import searchPopularIllust from './api/search-popular-illust';
+import searchIllust from './api/search-illust';
 import { config } from '@/config';
-const pixivUtils = require('./utils');
+import pixivUtils from './utils';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/search/:keyword/:order?/:mode?',
+    categories: ['social-media'],
+    example: '/pixiv/search/Nezuko/popular/2',
+    parameters: { keyword: 'keyword', order: 'rank mode, empty or other for time order, popular for popular order', mode: 'filte R18 content' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'Keyword',
+    maintainers: ['DIYgod'],
+    handler,
+    description: `| only not R18 | only R18 | no filter      |
+  | ------------ | -------- | -------------- |
+  | safe         | r18      | empty or other |`,
+};
+
+async function handler(ctx) {
     if (!config.pixiv || !config.pixiv.refreshToken) {
         throw new Error('pixiv RSS is disabled due to the lack of <a href="https://docs.rsshub.app/install/#pei-zhi-bu-fen-rss-mo-kuai-pei-zhi">relevant config</a>');
     }
@@ -30,7 +51,7 @@ export default async (ctx) => {
         illusts = illusts.filter((item) => item.x_restrict === 1);
     }
 
-    ctx.set('data', {
+    return {
         title: `${keyword} 的 pixiv ${order === 'popular' ? '热门' : ''}内容`,
         link: `https://www.pixiv.net/tags/${keyword}/artworks`,
         item: illusts.map((illust) => {
@@ -44,5 +65,5 @@ export default async (ctx) => {
             };
         }),
         allowEmpty: true,
-    });
-};
+    };
+}

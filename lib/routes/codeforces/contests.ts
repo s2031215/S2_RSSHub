@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,18 +6,44 @@ import got from '@/utils/got';
 import * as path from 'node:path';
 import { art } from '@/utils/render';
 
-const dayjs = require('dayjs');
-dayjs.extend(require('dayjs/plugin/localizedFormat'));
-dayjs.extend(require('dayjs/plugin/duration'));
-dayjs.extend(require('dayjs/plugin/relativeTime'));
-require('dayjs/locale/zh-cn');
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/zh-cn';
+
+dayjs.extend(localizedFormat);
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
 dayjs.locale('zh-cn');
 
 const sec2str = (sec) => dayjs.duration(Number.parseInt(sec), 'seconds').humanize();
 
 const contestAPI = 'https://codeforces.com/api/contest.list';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/contests',
+    categories: ['programming'],
+    example: '/codeforces/contests',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['www.codeforces.com/contests'],
+    },
+    name: 'Latest contests',
+    maintainers: ['Fatpandac'],
+    handler,
+    url: 'www.codeforces.com/contests',
+};
+
+async function handler() {
     const contestsData = await got.get(contestAPI).json();
     const contests = contestsData.result;
 
@@ -41,9 +67,9 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: 'Codeforces - Contests',
         link: 'https://codeforces.com/contests',
         item: items,
-    });
-};
+    };
+}

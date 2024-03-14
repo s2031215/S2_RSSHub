@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import timezone from '@/utils/timezone';
@@ -7,7 +7,19 @@ import { load } from 'cheerio';
 
 const rootUrl = 'https://www.chinanews.com.cn';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/',
+    radar: {
+        source: ['chinanews.com.cn/'],
+        target: '',
+    },
+    name: 'Unknown',
+    maintainers: ['yuxinliu-alex'],
+    handler,
+    url: 'chinanews.com.cn/',
+};
+
+async function handler(ctx) {
     const currentUrl = `${rootUrl}/scroll-news/news1.html`;
     const response = await got({
         method: 'get',
@@ -58,11 +70,11 @@ export default async (ctx) => {
             })
         )
     );
-    ctx.set('data', {
+    return {
         title: '中国新闻网',
         link: currentUrl,
         description: '中国新闻网（简称“中新网”），由中国新闻社主办，为中央重点新闻网站。',
         language: 'zh-cn',
         item: items,
-    });
-};
+    };
+}

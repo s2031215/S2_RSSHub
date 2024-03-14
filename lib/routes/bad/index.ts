@@ -1,11 +1,18 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getSubPath } from '@/utils/common-utils';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '*',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const rootUrl = 'https://bad.news';
     const currentUrl = `${rootUrl}${getSubPath(ctx) === '/' ? '' : getSubPath(ctx)}`;
 
@@ -52,9 +59,9 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: `Bad.news - ${$('.active').text()}${$('.selected').text()}`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

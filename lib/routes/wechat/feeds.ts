@@ -1,4 +1,3 @@
-// @ts-nocheck
 import parser from '@/utils/rss-parser';
 import { finishArticleItem } from '@/utils/wechat-mp';
 
@@ -15,10 +14,10 @@ export default async (ctx) => {
     }));
     await Promise.all(items.map((item) => finishArticleItem(item)));
 
-    ctx.set('data', {
+    return {
         title: feed.title,
         link,
         description: feed.description,
         item: items,
-    });
+    };
 };

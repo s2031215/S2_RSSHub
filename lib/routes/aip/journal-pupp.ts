@@ -1,7 +1,6 @@
-// @ts-nocheck
 import cache from '@/utils/cache';
 import { load } from 'cheerio';
-const { puppeteerGet, renderDesc } = require('./utils');
+import { puppeteerGet, renderDesc } from './utils';
 import { config } from '@/config';
 import { isValidHost } from '@/utils/valid-host';
 import puppeteer from '@/utils/puppeteer';
@@ -52,10 +51,10 @@ export default async (ctx) => {
 
     browser.close();
 
-    ctx.set('data', {
+    return {
         title: jrnlName,
         link: jrnlUrl,
         item: list,
         allowEmpty: true,
-    });
+    };
 };

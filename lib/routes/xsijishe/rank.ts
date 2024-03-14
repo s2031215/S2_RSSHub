@@ -1,10 +1,28 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 const baseUrl = 'https://xsijishe.com';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/rank/:type',
+    categories: ['bbs'],
+    example: '/xsijishe/rank/weekly',
+    parameters: { type: '排行榜类型: weekly | monthly' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '排行榜',
+    maintainers: ['akynazh'],
+    handler,
+};
+
+async function handler(ctx) {
     const rankType = ctx.req.param('type');
     let title;
     let rankId;
@@ -53,10 +71,10 @@ export default async (ctx) => {
             })
         )
     );
-    ctx.set('data', {
+    return {
         title,
         link: url,
         description: title,
         item: items,
-    });
-};
+    };
+}

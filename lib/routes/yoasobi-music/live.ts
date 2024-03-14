@@ -1,13 +1,35 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import got from '@/utils/got';
-const { parseJSONP } = require('./jsonp-helper');
+import { parseJSONP } from './jsonp-helper';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/live',
+    categories: ['live'],
+    example: '/yoasobi-music/live',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['www.yoasobi-music.jp/', 'www.yoasobi-music.jp/live'],
+    },
+    name: 'Live',
+    maintainers: ['Kiotlin'],
+    handler,
+    url: 'www.yoasobi-music.jp/',
+};
+
+async function handler() {
     const ARTIST = 'YOASOBI',
         SONYJPURL = 'https://www.sonymusic.co.jp',
         BASEURL = 'https://www.sonymusic.co.jp/json/v2/artist',
@@ -31,7 +53,7 @@ export default async (ctx) => {
         sessions: item.liveItem,
     }));
 
-    ctx.set('data', {
+    return {
         // the source title
         title,
         // the source url
@@ -52,5 +74,5 @@ export default async (ctx) => {
             // the article link
             link: item.link,
         })),
-    });
-};
+    };
+}

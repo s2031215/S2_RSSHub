@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -20,7 +20,14 @@ function loadContent(link) {
     });
 }
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:type?',
+    name: 'Unknown',
+    maintainers: ['SunShinenny'],
+    handler,
+};
+
+async function handler(ctx) {
     const type = ctx.req.param('type');
     const host = `http://${type}.neea.edu.cn${typeDic[type].url}`;
     const response = await got({
@@ -49,13 +56,13 @@ export default async (ctx) => {
             return Object.assign({}, single, other);
         })
     );
-    ctx.set('data', {
+    return {
         title: `${typeDic[String(type)].title}动态`,
         link: host,
         description: `${typeDic[String(type)].title}动态 `,
         item: process,
-    });
-};
+    };
+}
 
 const typeDic = {
     // 国家教育考试

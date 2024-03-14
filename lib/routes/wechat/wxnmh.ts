@@ -1,4 +1,3 @@
-// @ts-nocheck
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -37,10 +36,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `${name} - 微信公众号`,
         link: 'https://www.wxnmh.com/',
         description,
         item,
-    });
+    };
 };

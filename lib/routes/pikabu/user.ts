@@ -1,11 +1,32 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
-const iconv = require('iconv-lite');
+import iconv from 'iconv-lite';
 import { parseDate } from '@/utils/parse-date';
-const { baseUrl, fixImage, fixVideo } = require('./utils');
+import { baseUrl, fixImage, fixVideo } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/:name',
+    categories: ['bbs'],
+    example: '/pikabu/user/@bula.dragon',
+    parameters: { name: 'User name' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['pikabu.ru/:name'],
+    },
+    name: 'User',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const name = ctx.req.param('name');
     const link = `${baseUrl}/${name}`;
     const response = await got(link, {
@@ -36,12 +57,12 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: $('meta[property="og:title"]').attr('content'),
         description: $('.profile__user-about-content').text(),
         image: $('meta[property="og:image"]').attr('content'),
         language: 'ru-RU',
         link,
         item: items,
-    });
-};
+    };
+}

@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -8,10 +8,31 @@ import { load } from 'cheerio';
 import * as path from 'node:path';
 import { art } from '@/utils/render';
 
-const { CookieJar } = require('tough-cookie');
+import { CookieJar } from 'tough-cookie';
 const cookieJar = new CookieJar();
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/journal/:journal',
+    categories: ['journal'],
+    example: '/springer/journal/10450',
+    parameters: { journal: 'Journal Code, the number in the URL from the journal homepage' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['www.springer.com/journal/:journal/*'],
+    },
+    name: 'Journal',
+    maintainers: ['Derekmini', 'TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const host = 'https://www.springer.com';
     const journal = ctx.req.param('journal');
     const jrnlUrl = `${host}/journal/${journal}`;
@@ -69,9 +90,9 @@ export default async (ctx) => {
             })
         )
     );
-    ctx.set('data', {
+    return {
         title: jrnlName,
         link: jrnlUrl,
         item: items,
-    });
-};
+    };
+}

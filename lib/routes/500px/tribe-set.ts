@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -7,9 +7,27 @@ import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
 
-const { baseUrl, getTribeDetail, getTribeSets } = require('./utils');
+import { baseUrl, getTribeDetail, getTribeSets } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/tribe/set/:id',
+    categories: ['picture'],
+    example: '/500px/tribe/set/f5de0b8aa6d54ec486f5e79616418001',
+    parameters: { id: '部落 ID' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '部落影集',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const limit = Number.parseInt(ctx.req.query('limit')) || 100;
 
@@ -24,11 +42,11 @@ export default async (ctx) => {
         link: `${baseUrl}/community/set/${item.id}/details`,
     }));
 
-    ctx.set('data', {
+    return {
         title: tribe.name,
         description: `${tribe.watchword} - ${tribe.introduce}`,
         link: `${baseUrl}/page/tribe/detail?tribeId=${id}&pagev=set`,
         image: tribe.avatar.a1,
         item: items,
-    });
-};
+    };
+}

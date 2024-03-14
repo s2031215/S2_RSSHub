@@ -1,7 +1,14 @@
-// @ts-nocheck
-const { gdgov } = require('../general/general');
+import { Route } from '@/types';
+import { gdgov } from '../general/general';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/sdb/*',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const info = {
         defaultPath: 'zwgk/zcjd/',
         list_element: '.art-list li a',
@@ -17,4 +24,4 @@ export default async (ctx) => {
         pubDate_format: undefined,
     };
     await gdgov(info, ctx);
-};
+}

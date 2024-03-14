@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -10,7 +10,29 @@ const types = {
     r18list: 'newsPornList',
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/:type?/:category?',
+    categories: ['game'],
+    example: '/gamebase/news',
+    parameters: { type: '类型，见下表，默认为 newslist', category: '分类，可在对应分类页 URL 中找到，默认为 `all` 即全部' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '新聞',
+    maintainers: ['nczitzk'],
+    handler,
+    description: `类型
+
+  | newslist | r18list |
+  | -------- | ------- |`,
+};
+
+async function handler(ctx) {
     const type = ctx.req.param('type') ?? 'newslist';
     const category = ctx.req.param('category') ?? 'all';
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : 20;
@@ -68,9 +90,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: $('title').text(),
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

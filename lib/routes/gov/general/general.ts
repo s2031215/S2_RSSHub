@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -16,7 +15,7 @@ import cache from '@/utils/cache';
 //        [] hdjlpt 互动交流
 
 // 使用方法
-// const { gdgov } = require('../general/general');
+// import { gdgov } from '../general/general';
 //
 // export default async (ctx) => {
 //     const info = {
@@ -231,13 +230,11 @@ const gdgov = async (info, ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title: name,
         link: currentUrl,
         item: items,
-    });
+    };
 };
 
-module.exports = {
-    gdgov,
-};
+export { gdgov };

@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,9 +6,31 @@ import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
-const dayjs = require('dayjs');
+import dayjs from 'dayjs';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/freegames/:locale?/:country?',
+    categories: ['game'],
+    example: '/epicgames/freegames',
+    parameters: { locale: 'Locale, en_US by default', country: 'Country, US by default' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['store.epicgames.com/:locale/free-games'],
+        target: '/freegames/:locale',
+    },
+    name: 'Free games',
+    maintainers: ['DIYgod', 'NeverBehave', 'Zyx-A', 'junfengP', 'nczitzk', 'KotaHv'],
+    handler,
+};
+
+async function handler(ctx) {
     const locale = ctx.req.param('locale') ?? 'en-US';
     const country = ctx.req.param('country') ?? 'US';
 
@@ -81,9 +103,9 @@ export default async (ctx) => {
                 pubDate: parseDate(item.promotions.promotionalOffers[0].promotionalOffers[0].startDate),
             };
         });
-    ctx.set('data', {
+    return {
         title: 'Epic Games Store - Free Games',
         link: currentUrl,
         item: await Promise.all(items),
-    });
-};
+    };
+}

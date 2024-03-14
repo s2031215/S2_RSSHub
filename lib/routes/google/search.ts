@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -11,7 +11,25 @@ import { config } from '@/config';
 
 const renderDescription = (description, images) => art(path.join(__dirname, './templates/description.art'), { description, images });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/search/:keyword/:language?',
+    categories: ['other'],
+    example: '/google/search/rss/zh-CN,zh',
+    parameters: { keyword: 'Keyword', language: 'Accept-Language. Example: zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'Search',
+    maintainers: ['CaoMeiYouRen'],
+    handler,
+};
+
+async function handler(ctx) {
     const { keyword, language } = ctx.req.param();
     const searchParams = new URLSearchParams({
         q: keyword,
@@ -58,10 +76,10 @@ export default async (ctx) => {
         false
     );
 
-    ctx.set('data', {
+    return {
         title: `${keyword} - Google Search`,
         description: `${keyword} - Google Search`,
         link: url,
         item: items,
-    });
-};
+    };
+}

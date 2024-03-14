@@ -1,11 +1,11 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import MarkdownIt from 'markdown-it';
 const md = MarkdownIt();
-const asyncPool = require('tiny-async-pool');
+import asyncPool from 'tiny-async-pool';
 
 const baseUrl = 'https://www.luogu.com.cn';
 
@@ -27,7 +27,29 @@ const typeMap = {
     // },
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/contest',
+    categories: ['programming'],
+    example: '/luogu/contest',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['luogu.com.cn/contest/list', 'luogu.com.cn/'],
+    },
+    name: '比赛列表',
+    maintainers: ['prnake'],
+    handler,
+    url: 'luogu.com.cn/contest/list',
+};
+
+async function handler() {
     const link = `${baseUrl}/contest/list`;
     const { data: response } = await got(link);
     const $ = load(response);
@@ -66,10 +88,10 @@ export default async (ctx) => {
         result.push(item);
     }
 
-    ctx.set('data', {
+    return {
         title: $('head title').text(),
         link,
         image: 'https://www.luogu.com.cn/favicon.ico',
         item: result,
-    });
-};
+    };
+}

@@ -1,9 +1,32 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
-const { baseURL, puppeteerGet } = require('./utils');
+import { baseURL, puppeteerGet } from './utils';
 import { load } from 'cheerio';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/software/:name/:routeParams?',
+    categories: ['programming'],
+    example: '/alternativeto/software/cpp',
+    parameters: { name: 'Software name', routeParams: 'Filters of software type' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: true,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['www.alternativeto.net/software/:name'],
+        target: '/software/:name',
+    },
+    name: 'Software Alternatives',
+    maintainers: ['JimenezLi'],
+    handler,
+    description: `> routeParms can be copied from original site URL, example: \`/alternativeto/software/cpp/license=opensource&platform=windows\``,
+};
+
+async function handler(ctx) {
     const name = ctx.req.param('name');
     const query = new URLSearchParams(ctx.req.param('routeParams'));
     const link = `https://alternativeto.net/software/${name}/?${query.toString()}`;
@@ -12,7 +35,7 @@ export default async (ctx) => {
     const html = await puppeteerGet(link, cache);
     const $ = load(html);
 
-    ctx.set('data', {
+    return {
         title: $('.Heading_h1___Cf5Y').text().trim(),
         description: $('.intro-text').text().trim(),
         link,
@@ -30,5 +53,5 @@ export default async (ctx) => {
                     description,
                 };
             }),
-    });
-};
+    };
+}

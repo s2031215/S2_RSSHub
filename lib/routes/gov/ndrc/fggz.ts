@@ -1,11 +1,18 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/ndrc/fggz/:category{.+}?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const category = ctx.req.param('category');
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 25;
 
@@ -51,7 +58,7 @@ export default async (ctx) => {
 
     const image = $('div.logo a img').prop('src');
 
-    ctx.set('data', {
+    return {
         item: items,
         title: $('title').text(),
         link: currentUrl,
@@ -60,5 +67,5 @@ export default async (ctx) => {
         image,
         subtitle: $('meta[name="ColumnName"]').prop('content'),
         author: $('meta[name="SiteName"]').prop('content'),
-    });
-};
+    };
+}

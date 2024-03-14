@@ -1,12 +1,38 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
-const { joinUrl } = require('./utils');
+import { joinUrl } from './utils';
 import { parseDate } from '@/utils/parse-date';
 import { load } from 'cheerio';
 import got from '@/utils/got';
 import timezone from '@/utils/timezone';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/scs/:code',
+    categories: ['university'],
+    example: '/swpu/scs/tzgg',
+    parameters: { code: '栏目代码' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['swpu.edu.cn/'],
+        target: '',
+    },
+    name: '计算机科学学院',
+    maintainers: ['CYTMWIA'],
+    handler,
+    url: 'swpu.edu.cn/',
+    description: `| 栏目 | 通知公告 | 新闻速递 |
+  | ---- | -------- | -------- |
+  | 代码 | tzgg     | xwsd     |`,
+};
+
+async function handler(ctx) {
     const url = `https://www.swpu.edu.cn/scs/index/${ctx.req.param('code')}.htm`;
 
     const res = await got.get(url);
@@ -50,11 +76,11 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title: `西南石油大学计算机科学学院 ${title}`,
         link: url,
         description: `西南石油大学计算机科学学院 ${title}`,
         language: 'zh-CN',
         item: out,
-    });
-};
+    };
+}

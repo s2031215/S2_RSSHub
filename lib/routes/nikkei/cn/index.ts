@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getSubPath } from '@/utils/common-utils';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
@@ -7,7 +7,14 @@ import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import parser from '@/utils/rss-parser';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/cn/*',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     let language = '';
     let path = getSubPath(ctx);
 
@@ -85,10 +92,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: isOfficialRSS ? officialFeed.title : $('title').first().text(),
         description: isOfficialRSS ? officialFeed.description : '',
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

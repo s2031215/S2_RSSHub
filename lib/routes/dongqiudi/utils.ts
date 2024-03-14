@@ -1,8 +1,7 @@
-// @ts-nocheck
 import cache from '@/utils/cache';
 import { load } from 'cheerio';
 import got from '@/utils/got';
-const { JSDOM } = require('jsdom');
+import { JSDOM } from 'jsdom';
 import { parseDate } from '@/utils/parse-date';
 
 const ProcessVideo = (content) => {
@@ -110,12 +109,12 @@ const ProcessFeed = async (ctx, type, id) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `${name} - 相关新闻`,
         link,
         image: type === 'team' ? typeInfo.team_logo : typeInfo.person_logo,
         item: out,
-    });
+    };
 };
 
 const ProcessFeedType2 = (item, response) => {
@@ -163,11 +162,4 @@ const ProcessFeedType3 = (item, response) => {
     }
 };
 
-module.exports = {
-    ProcessVideo,
-    ProcessFeed,
-    ProcessFeedType2,
-    ProcessFeedType3,
-    ProcessHref,
-    ProcessImg,
-};
+export default { ProcessVideo, ProcessFeed, ProcessFeedType2, ProcessFeedType3, ProcessHref, ProcessImg };

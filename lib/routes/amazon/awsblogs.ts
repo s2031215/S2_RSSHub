@@ -1,8 +1,15 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/awsblogs/:locale?',
+    name: 'Unknown',
+    maintainers: ['HankChow'],
+    handler,
+};
+
+async function handler(ctx) {
     const locale = ctx.req.param('locale') ?? 'zh_CN';
 
     const response = await got({
@@ -11,7 +18,7 @@ export default async (ctx) => {
 
     const items = response.data.items;
 
-    ctx.set('data', {
+    return {
         title: 'AWS Blog',
         link: 'https://aws.amazon.com/blogs/',
         description: 'AWS Blog 更新',
@@ -24,5 +31,5 @@ export default async (ctx) => {
                 link: item.item.additionalFields.link,
                 author: item.item.additionalFields.contributors,
             })),
-    });
-};
+    };
+}

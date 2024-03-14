@@ -1,10 +1,10 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { load } from 'cheerio';
 import timezone from '@/utils/timezone';
-const asyncPool = require('tiny-async-pool');
+import asyncPool from 'tiny-async-pool';
 
 const asyncPoolAll = async (...args) => {
     const results = [];
@@ -14,7 +14,29 @@ const asyncPoolAll = async (...args) => {
     return results;
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/huanbao',
+    categories: ['traditional-media'],
+    example: '/bjx/huanbao',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['huanbao.bjx.com.cn/yw', 'huanbao.bjx.com.cn/'],
+    },
+    name: '环保要闻',
+    maintainers: ['zsimple'],
+    handler,
+    url: 'huanbao.bjx.com.cn/yw',
+};
+
+async function handler() {
     const listURL = 'https://huanbao.bjx.com.cn/yw/';
     const response = await got(listURL);
 
@@ -37,12 +59,12 @@ export default async (ctx) => {
         (items) => fetchPage(items.link)
     );
 
-    ctx.set('data', {
+    return {
         title: '北极星环保 - 环保行业垂直门户网站',
         link: listURL,
         item: items,
-    });
-};
+    };
+}
 
 const fetchPage = (link) =>
     cache.tryGet(link, async () => {

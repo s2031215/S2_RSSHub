@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -66,7 +66,14 @@ const titleMap = {
     },
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:category/:type?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { category, type } = ctx.req.param();
 
     const url = `${rootUrl}/${categeoryMap[category][type]}`;
@@ -108,9 +115,9 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title: `423down-${titleMap[category][type]}`,
         link: url,
         item: items,
-    });
-};
+    };
+}

@@ -1,12 +1,34 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-const utils = require('./utils');
+import utils from './utils';
 import md5 from '@/utils/md5';
-const g_encrypt = require('./execlib/x-zse-96-v3');
+import g_encrypt from './execlib/x-zse-96-v3';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/question/:questionId/:sortBy?',
+    categories: ['social-media'],
+    example: '/zhihu/question/59895982',
+    parameters: { questionId: '问题 id', sortBy: '排序方式：`default`, `created`, `updated`。默认为 `default`' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['www.zhihu.com/question/:questionId'],
+        target: '/question/:questionId',
+    },
+    name: '问题',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const {
         questionId,
         sortBy = 'default', // default,created,updated
@@ -62,7 +84,7 @@ export default async (ctx) => {
 
     const listRes = response.data.data;
 
-    ctx.set('data', {
+    return {
         title: `知乎-${listRes[0].question.title}`,
         link: `https://www.zhihu.com/question/${questionId}`,
         item: listRes.map((item) => {
@@ -78,5 +100,5 @@ export default async (ctx) => {
                 link: `https://www.zhihu.com/question/${questionId}/answer/${item.id}`,
             };
         }),
-    });
-};
+    };
+}

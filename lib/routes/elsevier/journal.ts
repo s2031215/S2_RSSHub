@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -8,10 +8,21 @@ import { load } from 'cheerio';
 import * as path from 'node:path';
 import { art } from '@/utils/render';
 
-const { CookieJar } = require('tough-cookie');
+import { CookieJar } from 'tough-cookie';
 const cookieJar = new CookieJar();
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/:journal/latest', '/:journal'],
+    radar: {
+        source: ['www.sciencedirect.com/journal/:journal/*'],
+        target: '/:journal',
+    },
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const journal = ctx.req.param('journal');
     const host = 'https://www.sciencedirect.com';
     const jrnlUrl = `${host}/journal/${journal}`;
@@ -69,9 +80,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: jrnlName,
         link: jrnlUrl,
         item: items,
-    });
-};
+    };
+}

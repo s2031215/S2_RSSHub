@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -7,11 +7,34 @@ import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
-const md = require('markdown-it')({
+import MarkdownIt from 'markdown-it';
+const md = MarkdownIt({
     html: true,
 });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/nice',
+    categories: ['blog'],
+    example: '/chuanliu/nice',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['chuanliu.org/nice'],
+    },
+    name: '严选',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'chuanliu.org/nice',
+};
+
+async function handler(ctx) {
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 100;
 
     const rootUrl = 'https://chuanliu.org';
@@ -65,7 +88,7 @@ export default async (ctx) => {
 
     const icon = new URL($('link[rel="shortcut icon"]').prop('href'), currentUrl).href;
 
-    ctx.set('data', {
+    return {
         item: items,
         title: $('title').text(),
         link: currentUrl,
@@ -76,5 +99,5 @@ export default async (ctx) => {
         subtitle: $('title').text(),
         author: $('meta[name="author"]').prop('content'),
         allowEmpty: true,
-    });
-};
+    };
+}

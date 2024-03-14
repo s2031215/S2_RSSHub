@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -11,7 +11,14 @@ import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '*',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const rootUrl = 'https://www.78dm.net';
     const currentUrl = `${rootUrl}${getSubPath(ctx) === '/' ? '/news' : /\/\d+$/.test(getSubPath(ctx)) ? `${getSubPath(ctx)}.html` : getSubPath(ctx)}`;
 
@@ -72,9 +79,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `78动漫 - ${$('title').text().split('_')[0]} - ${$('.actived').first().text()}`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

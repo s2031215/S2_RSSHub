@@ -1,8 +1,8 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-const utils = require('./utils');
-const MarkdownIt = require('markdown-it');
+import utils from './utils';
+import MarkdownIt from 'markdown-it';
 
 async function getUserName(uid) {
     // 获取用户信息
@@ -17,7 +17,28 @@ async function getUserName(uid) {
     return response.data.name;
 }
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/author/:uid',
+    categories: ['programming'],
+    example: '/lanqiao/author/1701267',
+    parameters: { uid: '作者 `uid` 可在作者主页 URL 中找到' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['lanqiao.cn/users/:uid'],
+    },
+    name: '作者发布的课程',
+    maintainers: ['huhuhang'],
+    handler,
+};
+
+async function handler(ctx) {
     const uid = ctx.req.param('uid');
     const userName = await getUserName(uid);
     // 发起 HTTP GET 请求
@@ -50,7 +71,7 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         // 源标题
         title: `${userName} 发布的课程`,
         // 源链接
@@ -59,5 +80,5 @@ export default async (ctx) => {
         description: `${userName} 发布的课程`,
         // 遍历此前获取的数据
         item: items,
-    });
-};
+    };
+}

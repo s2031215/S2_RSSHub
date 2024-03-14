@@ -1,6 +1,5 @@
-// @ts-nocheck
 import cache from '@/utils/cache';
-const querystring = require('querystring');
+import querystring from 'querystring';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { fallback, queryToBoolean, queryToInteger } from '@/utils/readable-social';
@@ -87,7 +86,7 @@ const weiboUtils = {
         htmlNewLineUnreplaced = htmlNewLineUnreplaced.replaceAll(/"https:\/\/weibo\.cn\/sinaurl.*?[&?]u=(http.*?)"/g, (match, p1) => `"${decodeURIComponent(p1)}"`);
 
         // 处理图片的链接
-        htmlNewLineUnreplaced = htmlNewLineUnreplaced.replaceAll(/<a\s+href="https?:\/\/.+\.(jpg|png|gif)"/g, (match) => `${match} data-rsshub-image="href"`);
+        htmlNewLineUnreplaced = htmlNewLineUnreplaced.replaceAll(/<a\s+href="https?:\/\/[^"]+\.(jpg|png|gif)"/g, (match) => `${match} data-rsshub-image="href"`);
 
         let html = htmlNewLineUnreplaced.replaceAll('\n', '<br>');
 
@@ -466,4 +465,4 @@ const weiboUtils = {
     })(),
 };
 
-module.exports = weiboUtils;
+export default weiboUtils;

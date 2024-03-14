@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,11 +6,18 @@ import got from '@/utils/got';
 import * as path from 'node:path';
 import { art } from '@/utils/render';
 const renderDescription = (desc) => art(path.join(__dirname, 'templates/scheduleDesc.art'), desc);
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/schedules/:serie?/:category?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     dayjs.extend(utc);
     dayjs.extend(timezone);
     const serie = ctx.req.param('serie');
@@ -50,11 +57,11 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `${category} - ${serie} - Love Live Official Website Schedule`,
         link: 'https://www.lovelive-anime.jp/schedule/',
         item: items,
         description:
             'The schedule date and other information shall be subject to the announcement on the official website. The RSS route has not been strictly tested, and the captured information cannot be guaranteed to be correct.',
-    });
-};
+    };
+}

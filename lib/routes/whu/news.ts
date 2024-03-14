@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -9,9 +9,16 @@ import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
 
-const { domain, processMeta, getMeta, processItems } = require('./util');
+import { domain, processMeta, getMeta, processItems } from './util';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/:category{.+}?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { category = 'wdzx/wdyw' } = ctx.req.param();
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 10;
 
@@ -59,7 +66,7 @@ export default async (ctx) => {
 
     const icon = new URL($('link[rel="shortcut icon"]').prop('href'), rootUrl).href;
 
-    ctx.set('data', {
+    return {
         item: items,
         title: `${siteName} - ${columnName}`,
         link: currentUrl,
@@ -71,5 +78,5 @@ export default async (ctx) => {
         subtitle: columnName,
         author: siteName,
         allowEmpty: true,
-    });
-};
+    };
+}

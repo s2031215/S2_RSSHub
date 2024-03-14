@@ -1,9 +1,19 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-const { rootUrl, apiRootUrl, ProcessItems } = require('./utils');
+import { rootUrl, apiRootUrl, ProcessItems } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/issue/:id?',
+    radar: {
+        source: ['hk01.com/issue/:id', 'hk01.com/'],
+    },
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id') ?? '649';
 
     const currentUrl = `${rootUrl}/issue/${id}`;
@@ -16,9 +26,9 @@ export default async (ctx) => {
 
     const items = await ProcessItems(response.data.blocks[0].articles, ctx.req.query('limit'), cache.tryGet);
 
-    ctx.set('data', {
+    return {
         title: `${response.data.title} | 香港01`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

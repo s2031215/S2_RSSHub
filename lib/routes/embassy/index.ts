@@ -1,12 +1,19 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 
-const supportedList = require('./supported-list');
+import supportedList from './supported-list';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:country/:city?',
+    name: 'Unknown',
+    maintainers: ['HenryQW'],
+    handler,
+};
+
+async function handler(ctx) {
     const country = ctx.req.param('country');
     const city = ctx.req.param('city') ?? undefined;
 
@@ -53,10 +60,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: desc,
         description: desc,
         link,
         item: out,
-    });
-};
+    };
+}

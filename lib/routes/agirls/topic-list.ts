@@ -1,9 +1,31 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
-const { baseUrl } = require('./utils');
+import { baseUrl } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/topic_list',
+    categories: ['new-media'],
+    example: '/agirls/topic_list',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['agirls.aotter.net/', 'agirls.aotter.net/topic'],
+    },
+    name: '当前精选主题列表',
+    maintainers: ['TonyRL'],
+    handler,
+    url: 'agirls.aotter.net/',
+};
+
+async function handler() {
     const category = 'topic';
     const link = `${baseUrl}/${category}`;
 
@@ -22,11 +44,11 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: $('head title').text().trim(),
         link,
         description: $('head meta[name=description]').attr('content'),
         item: items,
         language: $('html').attr('lang'),
-    });
-};
+    };
+}

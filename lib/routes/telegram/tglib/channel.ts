@@ -1,9 +1,8 @@
-// @ts-nocheck
 import wait from '@/utils/wait';
 import { config } from '@/config';
-const { client, decodeMedia, getFilename, getMediaLink, streamDocument, streamThumbnail } = require('./client');
-const bigInt = require('telegram/Helpers').returnBigInt;
-const HTMLParser = require('telegram/extensions/html').HTMLParser;
+import { client, decodeMedia, getFilename, getMediaLink, streamDocument, streamThumbnail } from './client';
+import { returnBigInt as bigInt } from 'telegram/Helpers';
+import { HTMLParser } from 'telegram/extensions/html';
 
 function parseRange(range, length) {
     if (!range) {
@@ -153,14 +152,14 @@ export default async (ctx) => {
         }
     }
 
-    ctx.set('data', {
+    return {
         title: channelInfo.title,
         language: null,
         link: `https://t.me/${channelInfo.username}`,
         item,
         allowEmpty: ctx.req.param('id') === 'allow_empty',
         description: `@${channelInfo.username} on Telegram`,
-    });
+    };
 };
 
-module.exports.getMedia = getMedia;
+export { getMedia };

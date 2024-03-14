@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 
 const fetchAPIByUser = async (user) => {
@@ -7,7 +7,17 @@ const fetchAPIByUser = async (user) => {
     return data;
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/user/:id',
+    radar: {
+        source: ['curiouscat.live/:id'],
+    },
+    name: 'Unknown',
+    maintainers: ['lucasew'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const user = id;
     const data = await fetchAPIByUser(user);
@@ -31,11 +41,11 @@ export default async (ctx) => {
         };
     });
 
-    ctx.set('data', {
+    return {
         title: `CuriousCat - ${user}`,
         link: `https://curiouscat.live/${user}`,
         description: `Questions answered by ${user} using CuriousCat`,
         language: data.lang,
         item: items,
-    });
-};
+    };
+}

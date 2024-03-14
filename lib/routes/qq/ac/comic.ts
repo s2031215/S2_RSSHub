@@ -1,10 +1,21 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 
-const { rootUrl, mobileRootUrl } = require('./utils');
+import { rootUrl, mobileRootUrl } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/ac/comic/:id?',
+    radar: {
+        source: ['ac.qq.com/Comic/ComicInfo/id/:id', 'ac.qq.com/'],
+        target: '/ac/comic/:id',
+    },
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
 
     const currentUrl = `${rootUrl}/Comic/comicInfo/id/${id}`;
@@ -35,10 +46,10 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: `${$('h1').text()} - 腾讯动漫`,
         link: currentUrl,
         item: items,
         description: `<p>${$('.head-info-desc').text()}</p>`,
-    });
-};
+    };
+}

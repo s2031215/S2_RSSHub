@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -16,9 +16,34 @@ import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
-const { baseUrl } = require('./utils');
+import { baseUrl } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/cover',
+    categories: ['journal'],
+    example: '/science/cover',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['science.org/'],
+    },
+    name: 'Cover Story',
+    maintainers: ['y9c', 'TonyRL'],
+    handler,
+    url: 'science.org/',
+    description: `Subscribe to the cover images of Science journals, and get the latest publication updates in time.
+
+  Including 'Science', 'Science Advances', 'Science Immunology', 'Science Robotics', 'Science Signaling' and 'Science Translational Medicine'.`,
+};
+
+async function handler() {
     const pageURL = `${baseUrl}/journals`;
 
     const { data: pageResponse } = await got(pageURL, {
@@ -62,12 +87,12 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: $('head title').text(),
         description: $('meta[property="og:description"]').attr('content'),
         image: `${baseUrl}/apple-touch-icon.png`,
         link: pageURL,
         language: 'en-US',
         item: items,
-    });
-};
+    };
+}

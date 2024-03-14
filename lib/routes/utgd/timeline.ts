@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -8,11 +8,34 @@ import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
-const md = require('markdown-it')({
+import MarkdownIt from 'markdown-it';
+const md = MarkdownIt({
     html: true,
 });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/timeline',
+    categories: ['new-media'],
+    example: '/utgd/timeline',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['utgd.net/'],
+    },
+    name: '时间线',
+    maintainers: ['nczitzk'],
+    handler,
+    url: 'utgd.net/',
+};
+
+async function handler(ctx) {
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit')) : 20;
 
     const rootUrl = 'https://utgd.net';
@@ -52,9 +75,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: 'UNTAG',
         link: rootUrl,
         item: items,
-    });
-};
+    };
+}

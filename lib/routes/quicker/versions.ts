@@ -1,9 +1,17 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/update', '/versions'],
+    name: 'Unknown',
+    maintainers: ['Cesaryuan', 'nczitzk'],
+    handler,
+    url: 'getquicker.net/Help/Versions',
+};
+
+async function handler() {
     const rootUrl = 'https://getquicker.net';
     const currentUrl = `${rootUrl}/Help/Versions`;
 
@@ -29,9 +37,9 @@ export default async (ctx) => {
             };
         });
 
-    ctx.set('data', {
+    return {
         title: $('title').text(),
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

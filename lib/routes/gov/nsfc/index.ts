@@ -1,13 +1,20 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getSubPath } from '@/utils/common-utils';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 
-const shortcuts = require('./shortcuts');
+import shortcuts from './shortcuts';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/nsfc/*',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     let thePath = getSubPath(ctx).replace(/^\/nsfc/, '');
 
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 30;
@@ -72,7 +79,7 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         item: items,
         title: `国家自然科学基金委员会 - ${$('#ess_essBREADCRUMB_lblBreadCrumb a.break')
             .toArray()
@@ -84,5 +91,5 @@ export default async (ctx) => {
         language: 'zh-cn',
         subtitle: $('meta[name="KEYWORDS"]').prop('content'),
         author: $('meta[name="AUTHOR"]').prop('content'),
-    });
-};
+    };
+}

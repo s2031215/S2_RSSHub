@@ -1,15 +1,16 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import cache from '@/utils/cache';
-const dayjs = require('dayjs');
+import dayjs from 'dayjs';
 import { art } from '@/utils/render';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
 import * as path from 'node:path';
 import { config } from '@/config';
 import puppeteer from '@/utils/puppeteer';
+import { createDecipheriv } from 'node:crypto';
 
 // Parameters
 const CACHE_MAX_AGE = config.cache.contentExpire;
@@ -48,7 +49,6 @@ const getMultiKeywordHotTrend = async (page, keyword, start_date, end_date, app_
 };
 
 // Decrypt Data
-const { createDecipheriv } = require('node:crypto');
 const key = 'anN2bXA2NjYsamlh';
 const iv = 'amlheW91LHFpYW53';
 const algorithm = 'aes-128-cfb';
@@ -82,7 +82,14 @@ const createContent = (keyword, queryList, queryListText) =>
         })),
     });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/index/:keyword/:channel?',
+    name: 'Unknown',
+    maintainers: ['Jkker'],
+    handler,
+};
+
+async function handler(ctx) {
     const now = dayjs();
     const start_date = now.subtract(DEFAULT_FETCH_DURATION_MONTH, 'month').format('YYYYMMDD');
     const end_date = now.format('YYYYMMDD');
@@ -141,11 +148,11 @@ export default async (ctx) => {
         false
     );
 
-    ctx.set('data', {
+    return {
         title: `${keyword} - ${channelName}指数波峰`,
         link,
         description: `巨量算数 - ${channelName}算数指数 | 关键词: ${keyword}`,
         language: 'zh-cn',
         item,
-    });
-};
+    };
+}

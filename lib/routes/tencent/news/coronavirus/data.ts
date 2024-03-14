@@ -1,13 +1,20 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
-const { getData } = require('./utils');
+import { getData } from './utils';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news/coronavirus/data/:province?/:city?',
+    name: 'Unknown',
+    maintainers: ['CaoMeiYouRen'],
+    handler,
+};
+
+async function handler(ctx) {
     const province = ctx.req.param('province') || '';
     const city = ctx.req.param('city') || '';
 
@@ -67,9 +74,9 @@ export default async (ctx) => {
 
     item.push(info);
 
-    ctx.set('data', {
+    return {
         title,
         link,
         item,
-    });
-};
+    };
+}

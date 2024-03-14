@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -8,10 +8,17 @@ import { load } from 'cheerio';
 import * as path from 'node:path';
 import { art } from '@/utils/render';
 
-const { CookieJar } = require('tough-cookie');
+import { CookieJar } from 'tough-cookie';
 const cookieJar = new CookieJar();
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/:journal/latest/vol/:sortType?', '/journal/:journal/:sortType?'],
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const punumber = ctx.req.param('journal');
     const sortType = ctx.req.param('sortType') ?? 'vol-only-seq';
     const host = 'https://ieeexplore.ieee.org';
@@ -75,9 +82,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: jrnlName,
         link: jrnlUrl,
         item: list,
-    });
-};
+    };
+}

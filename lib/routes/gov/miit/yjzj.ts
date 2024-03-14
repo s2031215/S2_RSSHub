@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -6,7 +6,29 @@ import { parseDate } from '@/utils/parse-date';
 
 const rootUrl = 'https://www.miit.gov.cn';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/miit/yjzj',
+    categories: ['government'],
+    example: '/gov/miit/yjzj',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['miit.gov.cn/gzcy/yjzj/index.html'],
+    },
+    name: '意见征集',
+    maintainers: ['Fatpandac'],
+    handler,
+    url: 'miit.gov.cn/gzcy/yjzj/index.html',
+};
+
+async function handler() {
     const url = `${rootUrl}/gzcy/yjzj/index.html`;
 
     const cookieResponse = await got(url);
@@ -53,9 +75,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: `工业和信息化部 - 意见征集`,
         link: url,
         item: items,
-    });
-};
+    };
+}

@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
@@ -36,7 +36,14 @@ const parseThumbnail = (type, item) => {
     return '';
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/users/:username?/:type?',
+    name: 'Unknown',
+    maintainers: ['Fatpandac'],
+    handler,
+};
+
+async function handler(ctx) {
     const username = ctx.req.param('username');
     const id = await cache.tryGet(`${apiRootUrl}/profile/${username}`, async () => (await got(`${apiRootUrl}/profile/${username}`)).data.user.id);
     const type = ctx.req.param('type') ?? 'video';
@@ -49,9 +56,9 @@ export default async (ctx) => {
         pubDate: parseDate(item.createdAt),
     }));
 
-    ctx.set('data', {
+    return {
         title: `${username}'s iwara - ${typeMap[type]}`,
         link: `${rootUrl}/users/${username}`,
         item: items,
-    });
-};
+    };
+}

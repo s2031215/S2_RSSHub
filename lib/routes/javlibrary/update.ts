@@ -1,10 +1,17 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
-const { defaultLanguage, rootUrl, ProcessItems } = require('./utils');
+import { defaultLanguage, rootUrl, ProcessItems } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: ['/videos/update/:language?', '/update/:language?'],
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const language = ctx.req.param('language') ?? defaultLanguage;
     const currentUrl = `${rootUrl}/${language}/vl_update.php?list`;
 
-    ctx.set('data', await ProcessItems(language, currentUrl, cache.tryGet));
-};
+    return await ProcessItems(language, currentUrl, cache.tryGet);
+}

@@ -1,5 +1,4 @@
-// @ts-nocheck
-const utils = require('../utils');
+import utils from '../utils';
 
 export default async (ctx) => {
     const keyword = ctx.req.param('keyword');
@@ -12,12 +11,12 @@ export default async (ctx) => {
         result_type: 'recent',
     });
 
-    ctx.set('data', {
+    return {
         title: `Twitter Keyword - ${keyword}`,
         link: `https://twitter.com/search?q=${encodeURIComponent(keyword)}`,
         item: utils.ProcessFeed(ctx, {
             data: data.statuses,
         }),
         allowEmpty: true,
-    });
+    };
 };

@@ -1,9 +1,20 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/pine/:version?',
+    radar: {
+        source: ['tradingview.com/pine-script-docs/en/:version/Release_notes.html'],
+        target: '/pine/:version',
+    },
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const { version = 'v5' } = ctx.req.param();
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 100;
 
@@ -42,7 +53,7 @@ export default async (ctx) => {
     const image = new URL('_images/Pine_Script_logo.svg', currentUrl).href;
     const icon = new URL('favicon.ico', rootUrl).href;
 
-    ctx.set('data', {
+    return {
         item: items,
         title: $('title').text(),
         link: currentUrl,
@@ -51,5 +62,5 @@ export default async (ctx) => {
         image,
         icon,
         logo: icon,
-    });
-};
+    };
+}

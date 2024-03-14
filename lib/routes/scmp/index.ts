@@ -1,11 +1,33 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import { load } from 'cheerio';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
-const { parseItem } = require('./utils');
+import { parseItem } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:category_id',
+    categories: ['traditional-media'],
+    example: '/scmp/3',
+    parameters: { category_id: 'Category' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['scmp.com/rss/:category_id/feed'],
+    },
+    name: 'News',
+    maintainers: ['proletarius101'],
+    handler,
+    description: `See the [official RSS page](https://www.scmp.com/rss) to get the ID of each category. This route provides fulltext that the offical feed doesn't.`,
+};
+
+async function handler(ctx) {
     const categoryId = ctx.req.param('category_id');
     const rssUrl = `https://www.scmp.com/rss/${categoryId}/feed`;
     const { data: response } = await got(rssUrl);
@@ -15,8 +37,8 @@ export default async (ctx) => {
 
     const list = $('item')
         .toArray()
-        .map((item) => {
-            item = $(item);
+        .map((elem) => {
+            const item = $(elem);
             const enclosure = item.find('enclosure').first();
             const mediaContent = item.find('media\\:content').toArray()[0];
             const thumbnail = item.find('media\\:thumbnail').toArray()[0];
@@ -44,13 +66,13 @@ export default async (ctx) => {
             };
         });
 
-    const items = await Promise.all(list.map((item) => cache.tryGet(item.link, () => parseItem)));
+    const items = await Promise.all(list.map((item) => cache.tryGet(item.link, () => parseItem(item))));
 
     ctx.set('json', {
         items,
     });
 
-    ctx.set('data', {
+    return {
         title: $('channel > title').text(),
         link: $('channel > link').text(),
         description: $('channel > description').text(),
@@ -59,5 +81,5 @@ export default async (ctx) => {
         icon: 'https://assets.i-scmp.com/static/img/icons/scmp-icon-256x256.png',
         logo: 'https://customerservice.scmp.com/img/logo_scmp@2x.png',
         image: $('channel > image > url').text(),
-    });
-};
+    };
+}

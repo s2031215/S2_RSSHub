@@ -1,13 +1,35 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { config } from '@/config';
-const md = require('markdown-it')({
+import MarkdownIt from 'markdown-it';
+const md = MarkdownIt({
     html: true,
 });
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/events/:owner/:repo',
+    categories: ['programming'],
+    example: '/gitee/events/y_project/RuoYi',
+    parameters: { owner: '用户名', repo: '仓库名' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['gitee.com/:owner/:repo'],
+    },
+    name: '仓库动态',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const { owner, repo } = ctx.req.param();
 
     const apiUrl = `https://gitee.com/api/v5/repos/${owner}/${repo}/events`;
@@ -60,9 +82,9 @@ export default async (ctx) => {
         return item;
     });
 
-    ctx.set('data', {
+    return {
         title: `${owner}/${repo} - 仓库动态`,
         link: `https://gitee.com/${owner}/${repo}`,
         item: items,
-    });
-};
+    };
+}

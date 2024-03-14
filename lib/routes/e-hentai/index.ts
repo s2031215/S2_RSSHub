@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -9,7 +9,14 @@ import * as path from 'node:path';
 import { art } from '@/utils/render';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/:what?/:id?/:needTorrents?/:needImages?',
+    name: 'Unknown',
+    maintainers: [],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id') ?? '';
     const what = ctx.req.param('what') ?? '';
     const needTorrents = /t|y/i.test(ctx.req.param('needTorrents') ?? 'true');
@@ -112,9 +119,9 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title: `${id || what || 'Front Page'} - E-Hentai Galleries`,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

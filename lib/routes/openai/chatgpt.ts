@@ -1,13 +1,32 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
-const dayjs = require('dayjs');
+import dayjs from 'dayjs';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { config } from '@/config';
 
-dayjs.extend(require('dayjs/plugin/isSameOrBefore'));
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+dayjs.extend(isSameOrBefore);
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/chatgpt/release-notes',
+    categories: ['new-media'],
+    example: '/openai/chatgpt/release-notes',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'ChatGPT - Release Notes',
+    maintainers: [],
+    handler,
+};
+
+async function handler() {
     const articleUrl = 'https://help.openai.com/en/articles/6825453-chatgpt-release-notes';
 
     const cacheIn = await cache.tryGet(
@@ -91,10 +110,10 @@ export default async (ctx) => {
         false
     );
 
-    ctx.set('data', {
+    return {
         title: cacheIn.feedTitle,
         description: cacheIn.feedDesc,
         link: articleUrl,
         item: cacheIn.items,
-    });
-};
+    };
+}

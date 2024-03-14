@@ -1,9 +1,9 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
-const getCookie = require('../utils/pypasswaf');
+import getCookie from '../utils/pypasswaf';
 const host = 'https://cae.nuaa.edu.cn/';
 
 const map = new Map([
@@ -18,7 +18,14 @@ const map = new Map([
     ['dbgg', { title: '答辩公告 | 南京航空航天大学自动化学院', suffix: 'dbgg/list.htm' }],
 ]);
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/cae/:type/:getDescription?',
+    name: 'Unknown',
+    maintainers: ['Xm798'],
+    handler,
+};
+
+async function handler(ctx) {
     const type = ctx.req.param('type');
     const suffix = map.get(type).suffix;
     const getDescription = Boolean(ctx.req.param('getDescription')) || false;
@@ -72,10 +79,10 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title: map.get(type).title,
         link,
         description: '南京航空航天大学自动化学院RSS',
         item: out,
-    });
-};
+    };
+}

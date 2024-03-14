@@ -1,4 +1,3 @@
-// @ts-nocheck
 // import cache from '@/utils/cache';
 /* eslint-disable unicorn/no-empty-file */
 /* Removed due to news.gdut.edu.cn no longer exists.
@@ -159,7 +158,7 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return ({
         title: `广东工业大学校内新闻网`,
         link: 'http://news.gdut.edu.cn',
         item: out.length > 0 ? out : articleList,

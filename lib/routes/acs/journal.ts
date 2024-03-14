@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -10,7 +10,17 @@ import * as path from 'node:path';
 import { config } from '@/config';
 import puppeteer from '@/utils/puppeteer';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/journal/:id',
+    radar: {
+        source: ['pubs.acs.org/journal/:id', 'pubs.acs.org/'],
+    },
+    name: 'Unknown',
+    maintainers: ['nczitzk'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id') ?? '';
 
     const rootUrl = 'https://pubs.acs.org';
@@ -71,9 +81,9 @@ export default async (ctx) => {
 
     await browser.close();
 
-    ctx.set('data', {
+    return {
         title,
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

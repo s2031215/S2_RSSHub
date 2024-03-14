@@ -1,8 +1,30 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/thebatch',
+    categories: ['programming'],
+    example: '/deeplearning/thebatch',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['www.deeplearning.ai/thebatch', 'www.deeplearning.ai/'],
+    },
+    name: 'TheBatch 周报',
+    maintainers: ['nczitzk', 'juvenn'],
+    handler,
+    url: 'www.deeplearning.ai/thebatch',
+};
+
+async function handler() {
     const page = await got({
         method: 'get',
         url: `https://www.deeplearning.ai/the-batch/`,
@@ -22,7 +44,7 @@ export default async (ctx) => {
         pubDate: new Date(item.published_at).toUTCString(),
     }));
 
-    ctx.set('data', {
+    return {
         title: `The Batch - a new weekly newsletter from deeplearning.ai`,
         link: `https://www.deeplearning.ai/the-batch/`,
         item: await Promise.all(
@@ -34,5 +56,5 @@ export default async (ctx) => {
                 })
             )
         ),
-    });
-};
+    };
+}

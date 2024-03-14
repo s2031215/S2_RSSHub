@@ -1,12 +1,30 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
-const { appsUrl, newsUrl, fixImg } = require('../utils');
+import { appsUrl, newsUrl, fixImg } from '../utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/apps/:lang?/post/:id',
+    categories: ['anime'],
+    example: '/qoo-app/apps/en/post/7675',
+    parameters: { lang: 'Language, see the table above, empty means `中文`', id: 'Game ID, can be found in URL' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: 'Game Store - Article',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const { id, lang = '' } = ctx.req.param();
     const link = `${appsUrl}${lang ? `/${lang}` : ''}/app-post/${id}`;
 
@@ -44,10 +62,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: $('head title').text(),
         link,
         language: $('html').attr('lang'),
         item: items,
-    });
-};
+    };
+}

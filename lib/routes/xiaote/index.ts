@@ -1,8 +1,30 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got'; // 自订的 got
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/news',
+    categories: ['bbs'],
+    example: '/xiaote/news',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['xiaote.com/'],
+    },
+    name: '首页帖子',
+    maintainers: ['wxsimon'],
+    handler,
+    url: 'xiaote.com/',
+};
+
+async function handler() {
     const { data } = await got.post('https://lcen.xiaote.net//api/graphql/', {
         json: {
             query: `query($startCursor: Int) {
@@ -23,7 +45,7 @@ export default async (ctx) => {
         },
     });
 
-    ctx.set('data', {
+    return {
         title: '小特社区',
         // 源链接
         link: 'https://xiaote.com/',
@@ -45,5 +67,5 @@ export default async (ctx) => {
                 author: item.user.nickname,
             };
         }),
-    });
-};
+    };
+}

@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -21,7 +21,29 @@ const pageType = (href) => {
     }
 };
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/nsd/gd',
+    categories: ['university'],
+    example: '/pku/nsd/gd',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['nsd.pku.edu.cn/'],
+    },
+    name: '观点 - 国家发展研究院',
+    maintainers: ['MisLink'],
+    handler,
+    url: 'nsd.pku.edu.cn/',
+};
+
+async function handler() {
     const response = await got({ url: baseUrl, https: { rejectUnauthorized: false } });
 
     const $ = load(response.data);
@@ -63,9 +85,9 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
+    return {
         title: '观点 - 北京大学国家发展研究院',
         link: baseUrl,
         item: items,
-    });
-};
+    };
+}

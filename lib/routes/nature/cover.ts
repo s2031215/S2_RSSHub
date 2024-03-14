@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 // The content is generateed by undocumentated API of nature journals
 // This router has **just** been tested in:
@@ -19,10 +19,33 @@ import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
-const { baseUrl, journalMap } = require('./utils');
-const { CookieJar } = require('tough-cookie');
+import { baseUrl, journalMap } from './utils';
+import { CookieJar } from 'tough-cookie';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/cover',
+    categories: ['journal'],
+    example: '/nature/cover',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['nature.com/'],
+    },
+    name: 'Cover Story',
+    maintainers: ['y9c'],
+    handler,
+    url: 'nature.com/',
+    description: `Subscribe to the cover images of the Nature journals, and get the latest publication updates in time.`,
+};
+
+async function handler() {
     const cookieJar = new CookieJar();
 
     await got('https://www.nature.com', { cookieJar });
@@ -60,10 +83,10 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: 'Nature Covers Story',
         description: 'Find out the cover story of some Nature journals.',
         link: baseUrl,
         item: out,
-    });
-};
+    };
+}

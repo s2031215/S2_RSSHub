@@ -1,7 +1,6 @@
-// @ts-nocheck
-const utils = require('../utils');
-const { getUser, getUserTweets, getUserTweetsAndReplies, excludeRetweet } = require('./twitter-api');
-const { initToken } = require('./token');
+import utils from '../utils';
+import { getUser, getUserTweets, getUserTweetsAndReplies, excludeRetweet } from './twitter-api';
+import { initToken } from './token';
 
 export default async (ctx) => {
     const id = ctx.req.param('id');
@@ -19,7 +18,7 @@ export default async (ctx) => {
 
     const profileImageUrl = userInfo.profile_image_url || userInfo.profile_image_url_https;
 
-    ctx.set('data', {
+    return {
         title: `Twitter @${userInfo.name}`,
         link: `https://twitter.com/${userInfo.screen_name}`,
         image: profileImageUrl.replace(/_normal.jpg$/, '.jpg'),
@@ -27,5 +26,5 @@ export default async (ctx) => {
         item: utils.ProcessFeed(ctx, {
             data,
         }),
-    });
+    };
 };

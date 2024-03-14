@@ -1,15 +1,36 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
-const data = require('../data').wh.news;
-const extractor = require('../extractor');
+import data from '../data';
+import extractor from '../extractor';
 import { parseDate } from '@/utils/parse-date';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/wh/news/:column?',
+    categories: ['university'],
+    example: '/sdu/wh/news/xyyw',
+    parameters: { column: '专栏名称，默认为校园要闻（`xyyw`）' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '新闻网',
+    maintainers: ['kxxt'],
+    handler,
+    description: `| 校园要闻 | 学生动态 | 综合新闻 | 山大视点 | 菁菁校园 | 校园简讯 | 玛珈之窗 | 热点专题 | 媒体视角 | 高教视野 | 理论学习 |
+  | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+  | xyyw     | xsdt     | zhxw     | sdsd     | jjxy     | xyjx     | mjzc     | rdzt     | mtsj     | gjsy     | llxx     |`,
+};
+
+async function handler(ctx) {
     const column = ctx.req.param('column') ?? 'xyyw';
-    const baseUrl = data.url;
-    const response = await got(baseUrl + data.columns[column].url);
+    const baseUrl = data.wh.news.url;
+    const response = await got(baseUrl + data.wh.news.columns[column].url);
     const $ = load(response.data);
     const items = $('.n_newslist li');
     const out = await Promise.all(
@@ -32,9 +53,9 @@ export default async (ctx) => {
         })
     );
 
-    ctx.set('data', {
-        title: `${data.name} ${data.columns[column].name}`,
-        link: baseUrl + data.columns[column].url,
+    return {
+        title: `${data.wh.news.name} ${data.wh.news.columns[column].name}`,
+        link: baseUrl + data.wh.news.columns[column].url,
         item: out,
-    });
-};
+    };
+}

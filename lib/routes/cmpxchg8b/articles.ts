@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
@@ -6,7 +6,29 @@ import { load } from 'cheerio';
 const baseUrl = 'https://lock.cmpxchg8b.com/';
 const title = 'cmpxchg8b';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/articles',
+    categories: ['blog'],
+    example: '/cmpxchg8b/articles',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['lock.cmpxchg8b.com/articles'],
+    },
+    name: 'Articles',
+    maintainers: ['yuguorui'],
+    handler,
+    url: 'lock.cmpxchg8b.com/articles',
+};
+
+async function handler() {
     const { data: response } = await got(baseUrl);
 
     const $ = load(response);
@@ -37,9 +59,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title,
         link: new URL('#articles', baseUrl).toString(),
         item: items,
-    });
-};
+    };
+}

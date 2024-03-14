@@ -1,17 +1,35 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
-const iconv = require('iconv-lite');
+import iconv from 'iconv-lite';
 import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/book/:id?',
+    categories: ['reading'],
+    example: '/jjwxc/book/7013024',
+    parameters: { id: '作品 id，可在对应作品页中找到' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '作品',
+    maintainers: ['nczitzk'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 100;
 
@@ -96,7 +114,7 @@ export default async (ctx) => {
     const image = `https:${logoEl.prop('src')}`;
     const icon = new URL('favicon.ico', rootUrl).href;
 
-    ctx.set('data', {
+    return {
         item: items,
         title: `${logoEl.prop('alt').replace(/logo/, '')} | ${author}${keywords[0]}`,
         link: currentUrl,
@@ -107,5 +125,5 @@ export default async (ctx) => {
         logo: icon,
         subtitle: $('meta[name="Description"]').prop('content'),
         author: $('meta[name="Author"]').prop('content'),
-    });
-};
+    };
+}

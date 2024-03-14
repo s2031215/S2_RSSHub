@@ -1,12 +1,33 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
-const { JSDOM } = require('jsdom');
-const { CookieJar } = require('tough-cookie');
+import { JSDOM } from 'jsdom';
+import { CookieJar } from 'tough-cookie';
 import { parseDate } from '@/utils/parse-date';
 const cookieJar = new CookieJar();
 const baseUrl = 'https://xueqiu.com';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/column/:id',
+    categories: ['finance'],
+    example: '/xueqiu/column/9962554712',
+    parameters: { id: '用户 id, 可在用户主页 URL 中找到' },
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['xueqiu.com/:id/column'],
+    },
+    name: '用户专栏',
+    maintainers: ['TonyRL'],
+    handler,
+};
+
+async function handler(ctx) {
     const id = ctx.req.param('id');
     const pageUrl = `${baseUrl}/${id}/column`;
 
@@ -34,10 +55,10 @@ export default async (ctx) => {
         author: SNOWMAN_TARGET.screen_name,
     }));
 
-    ctx.set('data', {
+    return {
         title: `${SNOWMAN_TARGET.screen_name} - 雪球`,
         link: pageUrl,
         description: SNOWMAN_TARGET.description,
         item: items,
-    });
-};
+    };
+}

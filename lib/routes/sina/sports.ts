@@ -1,10 +1,17 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { load } from 'cheerio';
-const { parseArticle } = require('./utils');
+import { parseArticle } from './utils';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/sports/:type?',
+    name: 'Unknown',
+    maintainers: ['nczitzk'],
+    handler,
+};
+
+async function handler(ctx) {
     const type = ctx.req.param('type');
 
     let currentUrl = `https://sports.sina.com.cn/others/${type}.shtml`;
@@ -36,10 +43,10 @@ export default async (ctx) => {
 
     const items = await Promise.all(list.map((item) => parseArticle(item, cache.tryGet)));
 
-    ctx.set('data', {
+    return {
         title: `${$('title').text().split('_')[0]} - 新浪体育`,
         description: $('meta[name="description"]').attr('content'),
         link: currentUrl,
         item: items,
-    });
-};
+    };
+}

@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import got from '@/utils/got';
 import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
@@ -25,11 +25,29 @@ async function getArticles() {
     });
 }
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/blog',
+    categories: ['blog'],
+    example: '/cloudnative/blog',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    name: '博客',
+    maintainers: ['aneasystone'],
+    handler,
+};
+
+async function handler() {
     const articles = await getArticles();
-    ctx.set('data', {
+    return {
         title: '博客 | 云原生社区（中国）',
         link: 'https://cloudnative.to/blog/',
         item: articles,
-    });
-};
+    };
+}

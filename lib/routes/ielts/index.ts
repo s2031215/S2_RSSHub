@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import cache from '@/utils/cache';
 import { load } from 'cheerio';
 import got from '@/utils/got';
@@ -8,7 +8,19 @@ const targetUrl = 'https://ielts.neea.cn/allnews?locale=zh_CN';
 import { config } from '@/config';
 import puppeteer from '@/utils/puppeteer';
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/',
+    radar: {
+        source: ['ielts.neea.cn/allnews'],
+        target: '',
+    },
+    name: 'Unknown',
+    maintainers: ['zenxds'],
+    handler,
+    url: 'ielts.neea.cn/allnews',
+};
+
+async function handler() {
     const html = await cache.tryGet(
         targetUrl,
         async () => {
@@ -59,9 +71,9 @@ export default async (ctx) => {
         )
     );
 
-    ctx.set('data', {
+    return {
         title: 'IELTS雅思最新消息',
         link: targetUrl,
         item: items,
-    });
-};
+    };
+}

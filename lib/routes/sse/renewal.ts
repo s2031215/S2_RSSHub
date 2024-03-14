@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { Route } from '@/types';
 import { getCurrentPath } from '@/utils/helpers';
 const __dirname = getCurrentPath(import.meta.url);
 
@@ -6,14 +6,36 @@ import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import { art } from '@/utils/render';
 import * as path from 'node:path';
-const dayjs = require('dayjs');
-const localizedFormat = require('dayjs/plugin/localizedFormat');
-require('dayjs/locale/zh-cn');
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import 'dayjs/locale/zh-cn';
 dayjs.extend(localizedFormat);
 
 const currStatusName = ['全部', '已受理', '已询问', '通过', '未通过', '提交注册', '补充审核', '注册结果', '中止', '终止'];
 
-export default async (ctx) => {
+export const route: Route = {
+    path: '/renewal',
+    categories: ['finance'],
+    example: '/sse/renewal',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: false,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
+    radar: {
+        source: ['kcb.sse.com.cn/home', 'kcb.sse.com.cn/'],
+    },
+    name: '科创板项目动态',
+    maintainers: ['Jeason0228'],
+    handler,
+    url: 'kcb.sse.com.cn/home',
+};
+
+async function handler() {
     const pageUrl = 'https://kcb.sse.com.cn/renewal/';
     const host = `https://kcb.sse.com.cn`;
 
@@ -53,9 +75,9 @@ export default async (ctx) => {
         author: item.stockAuditName,
     }));
 
-    ctx.set('data', {
+    return {
         title: '上海证券交易所 - 科创板项目动态',
         link: pageUrl,
         item: items,
-    });
-};
+    };
+}
